@@ -1,0 +1,10 @@
+passwords.txt
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+report.html
+__pycache__/
+*.pyc
+ghost_watch_*_backup.py
