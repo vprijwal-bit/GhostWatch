@@ -325,6 +325,20 @@ GhostWatch is built for:
 
 ---
 
+## 📸 Real Screenshots
+
+### 🔴 Data Exfiltration Caught Live
+![Exfiltration](Screenshot%202026-08-18%20090257.png)
+
+### 🚨 Suspicious File Access Detected
+![Suspicious](Screenshot%202026-08-18%20085325.png)
+
+### 📊 GhostWatch Security Dashboard
+![Dashboard](Screenshot%202026-08-18%20090338.png)
+
+### 🟢 Smart Process Detection
+![Smart](Screenshot%202026-08-18%20090404.png)
+
 ## 👨‍💻 Author
 
 **vprijwal-bit**
