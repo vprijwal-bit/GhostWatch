@@ -1,3 +1,4 @@
+
 <div align="center">
 
 ```
@@ -158,18 +159,34 @@ Press CTRL+C to stop
 
 ## ⚙️ Installation
 
-**Clone the repository:**
+**Step 1 — Clone the repository:**
 ```bash
 git clone https://github.com/vprijwal-bit/GhostWatch.git
 cd GhostWatch
 ```
 
-**Install dependencies:**
+**Step 2 — Install Python dependencies:**
 ```bash
 pip install watchdog psutil rich --break-system-packages
 ```
 
-**Verify Python:**
+**Step 3 — Install fatrace:**
+```bash
+sudo apt update
+sudo apt install fatrace -y
+```
+
+**Step 4 — Verify fatrace:**
+```bash
+which fatrace
+```
+Expected output:
+```
+/usr/sbin/fatrace
+```
+> ⚠️ If `which fatrace` returns `fatrace not found` — install it before running GhostWatch.
+
+**Step 5 — Verify Python:**
 ```bash
 python3 --version
 ```
@@ -178,46 +195,176 @@ python3 --version
 
 ## ▶️ Usage
 
-**Run GhostWatch:**
+```bash
+cd ~/GhostWatch
+```
+
+**Normal run:**
 ```bash
 python3 ghost_watch.py
 ```
 
-**Run with root (recommended for full access):**
+**Recommended (full access):**
 ```bash
 sudo python3 ghost_watch.py
 ```
 
-**View your security dashboard:**
-```bash
-firefox /home/kali/GhostWatch/report.html
-```
+> 🔑 `sudo` / root is recommended for full file-monitoring access.
 
-**Stop GhostWatch:**
+Wait for:
 ```
-CTRL + C
+👁 GhostWatch is now LIVE...
 ```
+Keep this terminal running.
 
 ---
 
-## 🧪 Testing
+## 📊 Security Dashboard
 
-**Test 1 — Trigger a file alert:**
+Open the auto-generated HTML report in your browser:
+```bash
+firefox /home/kali/GhostWatch/report.html
+```
+The dashboard shows all detected security events, risk levels, and generated alerts in real time.
+
+---
+
+## ⏹️ Stop GhostWatch
+
+```
+CTRL + C
+```
+GhostWatch stops monitoring and saves the final report automatically.
+
+---
+
+## 🧪 Testing GhostWatch
+
+> ⚠️ The test file is **NOT** included in this repository. Create your own dummy test file on your own Kali Linux system. Never use real passwords.
+
+**Step 1 — Start GhostWatch (Terminal 1):**
+```bash
+cd ~/GhostWatch
+sudo python3 ghost_watch.py
+```
+Wait for:
+```
+👁 GhostWatch is now LIVE...
+```
+Keep it running.
+
+**Step 2 — Create a dummy sensitive file (Terminal 2):**
 ```bash
 echo "password=secret123" > /home/kali/passwords.txt
 ```
+> This creates a dummy test file only. `password=secret123` is fake test data. Never use a real password.
 
-**Test 2 — Read a sensitive file:**
+**Step 3 — Read the sensitive file:**
+```bash
+cat /home/kali/passwords.txt
+```
+Expected file content:
+```
+password=secret123
+```
+Expected GhostWatch detection:
+```
+🚨 FILE ACTIVITY DETECTED
+
+Process : cat
+Action  : READ
+File    : /home/kali/passwords.txt
+Risk    : 🟡 SUSPICIOUS
+```
+
+**Step 4 — Test a key-like file:**
+```bash
+echo "mykey" > /home/kali/id.key
+```
+> This is another dummy test file. May trigger an alert if `.key` is in your sensitive-file patterns.
+
+---
+
+## 🔧 Troubleshooting: fatrace not found
+
+If this command:
+```bash
+which fatrace
+```
+Returns:
+```
+fatrace not found
+```
+
+Run:
+```bash
+sudo apt update
+sudo apt install fatrace -y
+```
+
+Then verify:
+```bash
+which fatrace
+```
+Expected:
+```
+/usr/sbin/fatrace
+```
+
+Restart GhostWatch:
+```bash
+cd ~/GhostWatch
+sudo python3 ghost_watch.py
+```
+
+Wait for:
+```
+👁 GhostWatch is now LIVE...
+```
+
+Then test again:
 ```bash
 cat /home/kali/passwords.txt
 ```
 
-**Test 3 — Create a fake key file:**
-```bash
-echo "mykey" > /home/kali/id.key
+> ⚠️ If the file contents are displayed but GhostWatch does not generate a file activity alert — first check that `fatrace` is installed and that GhostWatch was restarted after installing it.
+
+---
+
+## 🔴 Possible Data Exfiltration Detection
+
+GhostWatch can identify a possible data-exfiltration pattern when:
+1. A process accesses a sensitive file
+2. The same process is associated with network communication
+
+Example alert:
+```
+🚨 POSSIBLE DATA EXFILTRATION
+
+Process   : python3
+Sensitive : /home/kali/passwords.txt
+Remote IP : 127.0.0.1
+Port      : 8080
+Risk      : 🔴 CRITICAL
 ```
 
-Each command above will instantly trigger a GhostWatch alert.
+> `127.0.0.1:8080` is used as a controlled local-lab example only.
+
+> ⚠️ Important: `cat /home/kali/passwords.txt` normally demonstrates the 🟡 SUSPICIOUS file-access detection. The 🔴 CRITICAL alert requires the **additional network-activity condition**. Not every `cat` command produces a CRITICAL alert.
+
+---
+
+## 📋 Testing Summary
+
+| Test | Expected Result |
+|------|-----------------|
+| Install fatrace | File monitoring available |
+| Create passwords.txt | Dummy sensitive file created |
+| Start GhostWatch | 👁 GhostWatch is LIVE |
+| `cat passwords.txt` | 🟡 SUSPICIOUS |
+| Create id.key | Sensitive-file test triggered |
+| Sensitive file + network activity | 🔴 CRITICAL |
+| Open report.html | Security dashboard loads |
 
 ---
 
@@ -253,6 +400,33 @@ Network Connection
 This means GhostWatch can catch **zero-day threats** that no antivirus signature database has seen yet — because it watches behavior, not file names.
 
 ---
+## 📸 Real Screenshots
+
+### 🔴 Data Exfiltration Caught Live
+
+
+![Exfiltration](Screenshot%202026-08-18%20090257.png)
+
+
+
+### 🚨 Suspicious File Access Detected
+
+
+![Suspicious](Screenshot%202026-08-18%20085325.png)
+
+
+
+### 📊 GhostWatch Security Dashboard
+
+
+![Dashboard](Screenshot%202026-08-18%20090338.png)
+
+
+
+### 🟢 Smart Process Detection
+
+
+![Smart](Screenshot%202026-08-18%20090404.png)
 
 ## 🔬 Cybersecurity Concepts Demonstrated
 
@@ -324,20 +498,6 @@ GhostWatch is built for:
 **Only monitor systems you own or have explicit permission to monitor.**
 
 ---
-
-## 📸 Real Screenshots
-
-### 🔴 Data Exfiltration Caught Live
-![Exfiltration](Screenshot%202026-08-18%20090257.png)
-
-### 🚨 Suspicious File Access Detected
-![Suspicious](Screenshot%202026-08-18%20085325.png)
-
-### 📊 GhostWatch Security Dashboard
-![Dashboard](Screenshot%202026-08-18%20090338.png)
-
-### 🟢 Smart Process Detection
-![Smart](Screenshot%202026-08-18%20090404.png)
 
 ## 👨‍💻 Author
 
